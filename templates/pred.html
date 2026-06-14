@@ -1,17 +1,292 @@
 <!doctype html> 
-<html> 
-<title>Brain tumor DETECTION</title>
+<html lang="en"> 
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Analysis Result — Neural Scan AI</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #090A0F;
+            --bg-card: rgba(18, 20, 32, 0.7);
+            --accent-primary: #6366f1;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-glow: rgba(99, 102, 241, 0.3);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, var(--bg-dark) 70%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            background: linear-gradient(135deg, #a5b4fc, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.5rem;
+        }
+
+        .btn-glow {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: #ffffff;
+            font-weight: 700;
+            padding: 12px 24px;
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-glow:hover {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+            color: #ffffff;
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-outline-custom:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: var(--text-main);
+        }
+
+        .scan-preview {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-height: 400px;
+        }
+
+        .scan-image {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+        }
+
+        /* Result Severity Badges and Theme */
+        .result-box {
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border-left: 5px solid;
+        }
+
+        /* Class-specific themes */
+        .theme-glioma {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: #ef4444;
+            border-left-color: #ef4444;
+            color: #fca5a5;
+        }
+        .text-glioma { color: #ef4444; }
+
+        .theme-meningioma {
+            background: rgba(245, 158, 11, 0.08);
+            border-color: #f59e0b;
+            border-left-color: #f59e0b;
+            color: #fde047;
+        }
+        .text-meningioma { color: #f59e0b; }
+
+        .theme-pitutary {
+            background: rgba(6, 182, 212, 0.08);
+            border-color: #06b6d4;
+            border-left-color: #06b6d4;
+            color: #a5f3fc;
+        }
+        .text-pitutary { color: #06b6d4; }
+
+        .theme-none {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: #10b981;
+            border-left-color: #10b981;
+            color: #a7f3d0;
+        }
+        .text-none { color: #10b981; }
+
+        .footer {
+            background: rgba(5, 5, 8, 0.8);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px 0;
+            margin-top: auto;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
- <body> 
-<h1 class="h1 fw-bold text-center text-uppercase shadow py-2 my-1 px-1 mx-1 bg-primary text-white">Brain Tumor DETECTION</h1>
-<div class="container my-1 p-2 d-flex justify-content-center">
-<div class="w-50 mt-3 p-3 mb-2 border rounded shadow">
-<p>you have {{result}} tumor. click <a href="" class="nav-link"></a></p>
-</div>
-</div>
+<body> 
+
+    <!-- Header / Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-transparent pt-4">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fa-solid fa-brain me-2"></i>NEURAL SCAN AI
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5 flex-grow-1">
+        <div class="row g-4 justify-content-center">
+            <div class="col-lg-10">
+                <div class="glass-card p-4 p-md-5 shadow-lg border border-opacity-10 border-white">
+                    
+                    <div class="d-flex align-items-center justify-content-between mb-4 border-bottom border-secondary border-opacity-25 pb-3">
+                        <h1 class="h3 fw-bold text-white mb-0">
+                            <i class="fa-solid fa-square-poll-vertical text-primary me-2"></i>Scan Analysis Results
+                        </h1>
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2 fw-semibold">
+                            <i class="fa-solid fa-circle-check me-1"></i> Analysis Complete
+                        </span>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Left: Scan Image -->
+                        <div class="col-md-6 text-center">
+                            <h4 class="h6 text-muted text-uppercase fw-bold mb-3 text-start">Processed CE-MRI Scan</h4>
+                            <div class="scan-preview shadow">
+                                <img src="{{ url_for('static', filename='photos/' + filename) }}" alt="Analyzed Scan" class="scan-image" />
+                            </div>
+                        </div>
+
+                        <!-- Right: Predictions details -->
+                        <div class="col-md-6">
+                            <h4 class="h6 text-muted text-uppercase fw-bold mb-3">Model Classification</h4>
+
+                            <!-- Class-specific card rendering -->
+                            {% if result == 'Glioma' %}
+                            <div class="result-box theme-glioma border border-opacity-20">
+                                <div class="d-flex align-items-center gap-3 mb-2">
+                                    <span class="fs-1"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                                    <div>
+                                        <h3 class="h4 fw-bold text-white mb-0">GLIOMA</h3>
+                                        <span class="small text-danger fw-semibold">High Priority Classification</span>
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted mt-3">
+                                    Gliomas are common and aggressive primary brain tumors arising from glial cells. They can grow rapidly and invade adjacent brain tissues, requiring prompt medical evaluation.
+                                </p>
+                            </div>
+                            {% elif result == 'Meningioma' %}
+                            <div class="result-box theme-meningioma border border-opacity-20">
+                                <div class="d-flex align-items-center gap-3 mb-2">
+                                    <span class="fs-1"><i class="fa-solid fa-circle-exclamation"></i></span>
+                                    <div>
+                                        <h3 class="h4 fw-bold text-white mb-0">MENINGIOMA</h3>
+                                        <span class="small text-warning fw-semibold">Medium Priority Classification</span>
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted mt-3">
+                                    Meningiomas arise from the meninges (membranes covering the brain and spinal cord). They are typically slow-growing and often benign, but can exert pressure on surrounding structures as they expand.
+                                </p>
+                            </div>
+                            {% elif result == 'Pitutary' or result == 'Pituitary' %}
+                            <div class="result-box theme-pitutary border border-opacity-20">
+                                <div class="d-flex align-items-center gap-3 mb-2">
+                                    <span class="fs-1"><i class="fa-solid fa-disease"></i></span>
+                                    <div>
+                                        <h3 class="h4 fw-bold text-white mb-0">PITUITARY</h3>
+                                        <span class="small text-info fw-semibold">Standard Priority Classification</span>
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted mt-3">
+                                    Pituitary tumors form on the pituitary gland at the base of the brain. These are usually benign (adenomas) but can interfere with hormonal regulation and vision due to their location.
+                                </p>
+                            </div>
+                            {% else %}
+                            <div class="result-box theme-none border border-opacity-20">
+                                <div class="d-flex align-items-center gap-3 mb-2">
+                                    <span class="fs-1"><i class="fa-solid fa-circle-check"></i></span>
+                                    <div>
+                                        <h3 class="h4 fw-bold text-white mb-0">NO TUMOR DETECTED</h3>
+                                        <span class="small text-success fw-semibold">Negative Classification</span>
+                                    </div>
+                                </div>
+                                <p class="mb-0 text-muted mt-3">
+                                    The model did not detect any structural signs of Glioma, Meningioma, or Pituitary tumors in this scan. The scan matches healthy patterns or categories without indications.
+                                </p>
+                            </div>
+                            {% endif %}
+
+                            <!-- Recommendations -->
+                            <div class="mt-4 p-3 bg-white bg-opacity-5 rounded border border-secondary border-opacity-25">
+                                <h5 class="h6 fw-bold text-white mb-2"><i class="fa-solid fa-clipboard-list text-primary me-2"></i>Clinical Recommendation</h5>
+                                <ul class="small text-muted ps-3 mb-0">
+                                    <li>Provide these predictions to a certified radiologist or neurosurgeon for confirmation.</li>
+                                    <li>Automated models can experience false positives/negatives based on slice angle or noise.</li>
+                                    <li>Cross-reference with patient symptoms and clinical history.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Action Buttons -->
+                    <div class="d-flex flex-wrap gap-3 mt-5 border-top border-secondary border-opacity-25 pt-4">
+                        <a href="/" class="btn-outline-custom">
+                            <i class="fa-solid fa-house"></i> Home Dashboard
+                        </a>
+                        <a href="/uimg" class="btn-glow ms-md-auto">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> Analyze Another Scan
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer text-center">
+        <div class="container">
+            <p class="mb-0">Developed by Sarvesh Kumar Sharma | Integrated & Styled by Antigravity</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
