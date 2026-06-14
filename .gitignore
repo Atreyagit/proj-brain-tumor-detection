@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+venv/
+ENV/
+
+# Project-specific large files
+models/bt_resnet50_model.pt
+
+# User uploaded images
+static/photos/*
+!static/photos/.gitkeep
